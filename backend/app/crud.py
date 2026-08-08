@@ -1,10 +1,17 @@
 import uuid
-from typing import Any
+from typing import Any, Literal
 
+from returnz import Err, Maybe, Nothing, Ok, Result, Some
+from returnz_fastapi import HttpError
 from sqlmodel import Session, select
 
 from app.core.security import get_password_hash, verify_password
 from app.models import Item, ItemCreate, User, UserCreate, UserUpdate
+
+
+class InvalidCredentials(HttpError):
+    status_code = 400
+    tag: Literal["invalid_credentials"] = "invalid_credentials"
 
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:
@@ -31,10 +38,10 @@ def update_user(*, session: Session, db_user: User, user_in: UserUpdate) -> Any:
     return db_user
 
 
-def get_user_by_email(*, session: Session, email: str) -> User | None:
+def get_user_by_email(*, session: Session, email: str) -> Maybe[User]:
     statement = select(User).where(User.email == email)
     session_user = session.exec(statement).first()
-    return session_user
+    return Some(session_user) if session_user is not None else Nothing()
 
 
 # Dummy hash to use for timing attack prevention when user is not found
@@ -42,22 +49,27 @@ def get_user_by_email(*, session: Session, email: str) -> User | None:
 DUMMY_HASH = "$argon2id$v=19$m=65536,t=3,p=4$MjQyZWE1MzBjYjJlZTI0Yw$YTU4NGM5ZTZmYjE2NzZlZjY0ZWY3ZGRkY2U2OWFjNjk"
 
 
-def authenticate(*, session: Session, email: str, password: str) -> User | None:
-    db_user = get_user_by_email(session=session, email=email)
-    if not db_user:
-        # Prevent timing attacks by running password verification even when user doesn't exist
-        # This ensures the response time is similar whether or not the email exists
-        verify_password(password, DUMMY_HASH)
-        return None
-    verified, updated_password_hash = verify_password(password, db_user.hashed_password)
-    if not verified:
-        return None
-    if updated_password_hash:
-        db_user.hashed_password = updated_password_hash
-        session.add(db_user)
-        session.commit()
-        session.refresh(db_user)
-    return db_user
+def authenticate(
+    *, session: Session, email: str, password: str
+) -> Result[User, InvalidCredentials]:
+    match get_user_by_email(session=session, email=email):
+        case Nothing():
+            # Prevent timing attacks by running password verification even when the
+            # user doesn't exist, so response time is similar either way.
+            verify_password(password, DUMMY_HASH)
+            return Err(InvalidCredentials())
+        case Some(db_user):
+            verified, updated_password_hash = verify_password(
+                password, db_user.hashed_password
+            )
+            if not verified:
+                return Err(InvalidCredentials())
+            if updated_password_hash:
+                db_user.hashed_password = updated_password_hash
+                session.add(db_user)
+                session.commit()
+                session.refresh(db_user)
+            return Ok(db_user)
 
 
 def create_item(*, session: Session, item_in: ItemCreate, owner_id: uuid.UUID) -> Item:

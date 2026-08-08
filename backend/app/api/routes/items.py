@@ -1,6 +1,8 @@
 import uuid
 from typing import Any, Literal
 
+from returnz import Err, Ok, Result, do, require
+from returnz_fastapi import HttpError, ResultRouter
 from sqlmodel import Session, col, func, select
 
 from app.api.deps import CurrentUser, SessionDep
@@ -13,8 +15,6 @@ from app.models import (
     Message,
     User,
 )
-from returnz import Err, Ok, Result, do, require
-from returnz_fastapi import HttpError, ResultRouter
 
 router = ResultRouter(prefix="/items", tags=["items"])
 
@@ -123,7 +123,11 @@ def create_item(
 
 @router.put("/{id}", response_model=ItemPublic, summary="Update an item")
 def update_item(
-    *, session: SessionDep, current_user: CurrentUser, id: uuid.UUID, item_in: ItemUpdate
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    id: uuid.UUID,
+    item_in: ItemUpdate,
 ) -> Result[Item, ItemNotFound | NotEnoughPermissions]:
     return update_owned_item(
         session=session, current_user=current_user, id=id, item_in=item_in
