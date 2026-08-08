@@ -1,7 +1,9 @@
 import uuid
-from typing import Any
+from typing import Any, Literal
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import Depends, HTTPException
+from returnz import Err, Ok, Result
+from returnz_fastapi import HttpError, ResultRouter
 from sqlmodel import col, delete, func, select
 
 from app import crud
@@ -26,7 +28,29 @@ from app.models import (
 )
 from app.utils import generate_new_account_email, send_email
 
-router = APIRouter(prefix="/users", tags=["users"])
+router = ResultRouter(prefix="/users", tags=["users"])
+
+
+# Typed errors for the by-id routes — several distinct failures each, documented
+# in OpenAPI (and the generated client). Existence checks elsewhere stay plain.
+class UserNotFound(HttpError):
+    status_code = 404
+    tag: Literal["user_not_found"] = "user_not_found"
+
+
+class NotEnoughPrivileges(HttpError):
+    status_code = 403
+    tag: Literal["not_enough_privileges"] = "not_enough_privileges"
+
+
+class EmailAlreadyExists(HttpError):
+    status_code = 409
+    tag: Literal["email_already_exists"] = "email_already_exists"
+
+
+class CannotDeleteSelf(HttpError):
+    status_code = 403
+    tag: Literal["cannot_delete_self"] = "cannot_delete_self"
 
 
 @router.get(
@@ -162,21 +186,18 @@ def register_user(session: SessionDep, user_in: UserRegister) -> Any:
 @router.get("/{user_id}", response_model=UserPublic)
 def read_user_by_id(
     user_id: uuid.UUID, session: SessionDep, current_user: CurrentUser
-) -> Any:
+) -> Result[User, NotEnoughPrivileges | UserNotFound]:
     """
     Get a specific user by id.
     """
     user = session.get(User, user_id)
-    if user == current_user:
-        return user
+    if user is not None and user == current_user:
+        return Ok(user)
     if not current_user.is_superuser:
-        raise HTTPException(
-            status_code=403,
-            detail="The user doesn't have enough privileges",
-        )
+        return Err(NotEnoughPrivileges())
     if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
+        return Err(UserNotFound())
+    return Ok(user)
 
 
 @router.patch(
@@ -189,44 +210,36 @@ def update_user(
     session: SessionDep,
     user_id: uuid.UUID,
     user_in: UserUpdate,
-) -> Any:
+) -> Result[User, UserNotFound | EmailAlreadyExists]:
     """
     Update a user.
     """
-
     db_user = session.get(User, user_id)
-    if not db_user:
-        raise HTTPException(
-            status_code=404,
-            detail="The user with this id does not exist in the system",
-        )
+    if db_user is None:
+        return Err(UserNotFound())
     if user_in.email:
         existing_user = crud.get_user_by_email(session=session, email=user_in.email)
         if existing_user and existing_user.id != user_id:
-            raise HTTPException(
-                status_code=409, detail="User with this email already exists"
-            )
+            return Err(EmailAlreadyExists())
 
     db_user = crud.update_user(session=session, db_user=db_user, user_in=user_in)
-    return db_user
+    return Ok(db_user)
 
 
 @router.delete("/{user_id}", dependencies=[Depends(get_current_active_superuser)])
 def delete_user(
     session: SessionDep, current_user: CurrentUser, user_id: uuid.UUID
-) -> Message:
+) -> Result[Message, UserNotFound | CannotDeleteSelf]:
     """
     Delete a user.
     """
     user = session.get(User, user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+    if user is None:
+        return Err(UserNotFound())
     if user == current_user:
-        raise HTTPException(
-            status_code=403, detail="Super users are not allowed to delete themselves"
-        )
+        return Err(CannotDeleteSelf())
     statement = delete(Item).where(col(Item.owner_id) == user_id)
     session.exec(statement)
     session.delete(user)
     session.commit()
-    return Message(message="User deleted successfully")
+    return Ok(Message(message="User deleted successfully"))
