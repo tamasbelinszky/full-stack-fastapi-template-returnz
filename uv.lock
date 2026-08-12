@@ -108,7 +108,7 @@ requires-dist = [
     { name = "pydantic-settings", specifier = ">=2.2.1,<3.0.0" },
     { name = "pyjwt", specifier = ">=2.13.0,<3.0.0" },
     { name = "python-multipart", specifier = ">=0.0.27,<1.0.0" },
-    { name = "returnz-fastapi", specifier = ">=0.1.0" },
+    { name = "returnz-fastapi", specifier = ">=0.1.2" },
     { name = "sentry-sdk", extras = ["fastapi"], specifier = ">=2.66.1,<3.0.0" },
     { name = "sqlmodel", specifier = ">=0.0.39,<1.0.0" },
     { name = "tenacity", specifier = ">=8.2.3,<10.0.0" },
@@ -1087,16 +1087,16 @@ wheels = [
 
 [[package]]
 name = "returnz"
-version = "0.1.0"
+version = "0.1.2"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/37/a5/e63b18cce66cd8abd53a302881d77b3ff6669c4768e707292cbeca60b011/returnz-0.1.0.tar.gz", hash = "sha256:36c38041f42b867e03570806a2fb7bf49d061fae6c37bfe11d87ccd95a583c82", size = 8955, upload-time = "2026-08-07T23:29:01.779Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/79/2a/887180304c2b511bb925acfa9cbb261110fca46e79c80c0269ea53a2191b/returnz-0.1.2.tar.gz", hash = "sha256:a7fcff5fbca184df1230d8c0ef284e2b8ce7c0fa48cd3381bdebe391c5933858", size = 8957, upload-time = "2026-08-11T18:56:05.732Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b6/b8/94ac9d41249977a788f1ee22ee3328627618331b43226f40cac4d01d90b5/returnz-0.1.0-py3-none-any.whl", hash = "sha256:28025b447ebf9e3580647a08bef12ecc91b0b9a18b0b2d57d57eaef7615dc974", size = 8242, upload-time = "2026-08-07T23:29:00.782Z" },
+    { url = "https://files.pythonhosted.org/packages/19/74/5f17d86474783bb96b48a9718e71b6d3347d60cd6fcc0c8a812ae78f36bb/returnz-0.1.2-py3-none-any.whl", hash = "sha256:7472c5bdc8e56b792d8890d0390feaef6fa1be766a7655a4d1573d5ea2f04a5c", size = 8241, upload-time = "2026-08-11T18:56:04.973Z" },
 ]
 
 [[package]]
 name = "returnz-fastapi"
-version = "0.1.0"
+version = "0.1.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "fastapi" },
@@ -1104,22 +1104,22 @@ dependencies = [
     { name = "returnz" },
     { name = "returnz-pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/cb/d3/620cf5e3d4e30353895707eb3a7bdeb42021b1adb0ae071770a28053ce1a/returnz_fastapi-0.1.0.tar.gz", hash = "sha256:f05436a7897f8601013cc0a854e7f1d807a7785109ea5d6d83e97f2fde18bc0a", size = 6485, upload-time = "2026-08-07T23:28:51.787Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9d/96/10589f2d86a73c1bc57c2cb7d0aab0bede761f144b3356953aee5b69a90c/returnz_fastapi-0.1.2.tar.gz", hash = "sha256:34ec040ab89830d399f41653f23da0cf5492955311c4be2daa881a07ad0f3fde", size = 7044, upload-time = "2026-08-11T18:56:04.21Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/db/8f/baf2919e379f5908aac18c90a1f988b97516f8c42d1bb7df4dcda6a09f83/returnz_fastapi-0.1.0-py3-none-any.whl", hash = "sha256:75f041e818a907076ca83764ba222e1321425fa3b96ca7fc94ae004a4f84ecfc", size = 6871, upload-time = "2026-08-07T23:28:50.859Z" },
+    { url = "https://files.pythonhosted.org/packages/88/39/f311cbb0853dc5c0759fc7be38c06af67bf6938cbf62d1e60cef0816ee69/returnz_fastapi-0.1.2-py3-none-any.whl", hash = "sha256:dc5528e6bf71162f419e942aa707f9b4c8b9dc45b4ed67a766a6d2a1e5356ffb", size = 7208, upload-time = "2026-08-11T18:56:03.19Z" },
 ]
 
 [[package]]
 name = "returnz-pydantic"
-version = "0.1.0"
+version = "0.1.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pydantic" },
     { name = "returnz" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/76/74/8240e331946e61777d000fdaa0e228ba972ff6622d65776def1065f62b45/returnz_pydantic-0.1.0.tar.gz", hash = "sha256:4c6db83d18c34fd081089da201808da6ba082ae04cafb0bcadde16989b3777b4", size = 5689, upload-time = "2026-08-07T23:29:02.288Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6c/c2/bb278967bcfd3c4d77c3a667842b7de82d2476809cee3157b7ec9ecea2de/returnz_pydantic-0.1.2.tar.gz", hash = "sha256:a53526c5c2354d5abf1a29c322261afb93af9ea33a19b466dbf89dd80b417ec6", size = 6745, upload-time = "2026-08-11T18:56:04.878Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/87/b5/d9a8887692942499689ed8deb1d585fd84ef68880c2d3debf1666890f5fd/returnz_pydantic-0.1.0-py3-none-any.whl", hash = "sha256:50c4cb3a11d127f5836e7404280293e19f25fc779625d6ee1029b0c9f0320505", size = 5997, upload-time = "2026-08-07T23:29:01.284Z" },
+    { url = "https://files.pythonhosted.org/packages/e8/c8/b7da61ea3bbec685e784fea449b92b8422fa68a1e4e52b3aee6619ed2c4c/returnz_pydantic-0.1.2-py3-none-any.whl", hash = "sha256:9f175ccc83f42316bb9f3bbc646d077b299249ff6cb133de7085489d8b37a009", size = 6779, upload-time = "2026-08-11T18:56:04.079Z" },
 ]
 
 [[package]]
